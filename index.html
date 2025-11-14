@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyNeneAI - Product Card Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #3c0911 0%, #23000f 50%, #012214 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #36C5F0;
+            box-shadow: 0 0 0 0.2rem rgba(54, 197, 240, 0.25);
+        }
+
+        .upload-area {
+            border: 3px dashed #36C5F0;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            background: #e6f7ff;
+            border-color: #2EB67D;
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: #36C5F0;
+            margin-bottom: 10px;
+        }
+
+        .preview-area {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cardCanvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .template-item {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .template-item:hover {
+            transform: scale(1.05);
+            border-color: #36C5F0;
+        }
+
+        .template-item.active {
+            border-color: #2EB67D;
+            box-shadow: 0 0 15px rgba(46, 182, 125, 0.5);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4A154B 0%, #36C5F0 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(54, 197, 240, 0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .ai-tips {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .ai-tips h5 {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #c0392b;
+        }
+
+        .ai-tips p {
+            color: #333;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .color-picker-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .modal-content {
+            border-radius: 20px;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #4A154B 0%, #36C5F0 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        @media (max-width: 992px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .template-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons button {
+                width: 100%;
+            }
+        }
+
+        .img-preview {
+            max-width: 100%;
+            max-height: 150px;
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Email Modal -->
+    <div class="modal fade" id="emailModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-envelope"></i> Welcome to MyNeneAI</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Enter your email to get started with creating amazing product cards!</p>
+                    <input type="email" class="form-control" id="userEmail" placeholder="your@email.com" required>
+                    <small class="text-muted">We'll save this so you don't have to enter it again.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveEmail()">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-magic"></i> MyNeneAI</h1>
+            <p>Create Stunning Product Cards in Seconds</p>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- Left Panel - Controls -->
+            <div class="card-section">
+                <h3 class="section-title"><i class="fas fa-sliders-h"></i> Design Your Card</h3>
+                
+                <!-- Upload Image -->
+                <div class="form-group">
+                    <label class="form-label">Product Image</label>
+                    <div class="upload-area" onclick="document.getElementById('imageUpload').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload product image</p>
+                        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                    </div>
+                    <img id="imgPreview" class="img-preview" style="display: none;">
+                </div>
+
+                <!-- Product Details -->
+                <div class="form-group">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" class="form-control" id="productName" placeholder="e.g., Premium Wireless Headphones">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Small Text (Optional)</label>
+                    <input type="text" class="form-control" id="smallText" placeholder="e.g., Limited Edition">
+                </div>
+
+                <!-- Price Section -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Currency</label>
+                            <select class="form-select" id="currency">
+                                <option value="₦">₦ (NGN)</option>
+                                <option value="$">$ (USD)</option>
+                                <option value="€">€ (EUR)</option>
+                                <option value="£">£ (GBP)</option>
+                                <option value="¥">¥ (JPY)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Was (Optional)</label>
+                            <input type="number" class="form-control" id="oldPrice" placeholder="5000">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Now</label>
+                            <input type="number" class="form-control" id="newPrice" placeholder="3500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Selection -->
+                <div class="form-group">
+                    <label class="form-label">Call to Action</label>
+                    <select class="form-select" id="ctaText">
+                        <option value="Buy Now">Buy Now</option>
+                        <option value="Shop Now">Shop Now</option>
+                        <option value="Order Now">Order Now</option>
+                        <option value="Get Yours">Get Yours</option>
+                        <option value="Learn More">Learn More</option>
+                        <option value="Add to Cart">Add to Cart</option>
+                    </select>
+                </div>
+
+                <!-- Font Selection -->
+                <div class="form-group">
+                    <label class="form-label">Font Style</label>
+                    <select class="form-select" id="fontStyle">
+                        <option value="Inter">Inter (Modern)</option>
+                        <option value="Poppins">Poppins (Clean)</option>
+                        <option value="Montserrat">Montserrat (Bold)</option>
+                        <option value="Playfair Display">Playfair (Elegant)</option>
+                        <option value="Roboto">Roboto (Classic)</option>
+                    </select>
+                </div>
+
+                <!-- Color Pickers -->
+                <div class="form-group">
+                    <label class="form-label">Card Colors</label>
+                    <div class="color-picker-group">
+                        <div>
+                            <small>Background</small>
+                            <input type="color" class="form-control form-control-color" id="bgColor" value="#ffffff">
+                        </div>
+                        <div>
+                            <small>Text Color</small>
+                            <input type="color" class="form-control form-control-color" id="textColor" value="#333333">
+                        </div>
+                        <div>
+                            <small>Accent Color</small>
+                            <input type="color" class="form-control form-control-color" id="accentColor" value="#36C5F0">
+                        </div>
+                        <div>
+                            <small>CTA Button</small>
+                            <input type="color" class="form-control form-control-color" id="ctaColor" value="#2EB67D">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Background Image -->
+                <div class="form-group">
+                    <label class="form-label">Background Image (Optional)</label>
+                    <input type="file" class="form-control" id="bgImageUpload" accept="image/*">
+                </div>
+
+                <button class="btn btn-primary w-100" onclick="generateCard()">
+                    <i class="fas fa-paint-brush"></i> Generate Card
+                </button>
+
+                <!-- AI Tips -->
+                <div class="ai-tips">
+                    <h5><i class="fas fa-lightbulb"></i> AI Tips</h5>
+                    <p id="aiTip">Use high-quality product images for best results. Ensure good lighting and clear backgrounds!</p>
+                </div>
+            </div>
+
+            <!-- Right Panel - Preview & Templates -->
+            <div class="card-section">
+                <h3 class="section-title"><i class="fas fa-eye"></i> Preview</h3>
+                
+                <div class="preview-area">
+                    <canvas id="cardCanvas" width="800" height="1000"></canvas>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="downloadCard()">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button class="btn btn-primary" onclick="shareToFacebook()">
+                        <i class="fab fa-facebook"></i> Share
+                    </button>
+                    <button class="btn btn-primary" onclick="shareToTwitter()">
+                        <i class="fab fa-twitter"></i> Tweet
+                    </button>
+                    <button class="btn btn-primary" onclick="shareToWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </button>
+                </div>
+
+                <!-- Templates Section -->
+                <div class="form-group mt-4">
+                    <label class="form-label">Choose Template (120+ Designs)</label>
+                    <div class="template-grid" id="templateGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by <a href="https://analaize.com.ng" target="_blank">analaize.com.ng</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let canvas, ctx, productImage = null, bgImage = null;
+        let currentTemplate = 1;
+        
+        const aiTips = [
+            "Use high-quality product images for best results. Ensure good lighting and clear backgrounds!",
+            "Keep your text short and punchy. Product names under 30 characters work best!",
+            "Contrast is key! Dark text on light backgrounds (or vice versa) ensures readability.",
+            "Show the discount percentage prominently to catch attention (e.g., 'SAVE 30%').",
+            "Use action words in your CTA. 'Buy Now' converts better than 'Click Here'!",
+            "White space is your friend. Don't overcrowd your card with too many elements.",
+            "Test different templates. What works for fashion may not work for electronics!",
+            "Upload lifestyle images showing products in use for better emotional connection.",
+            "Warm colors (red, orange) create urgency; cool colors (blue, green) build trust.",
+            "Add your brand colors to maintain consistency across all product cards!"
+        ];
+
+        // Initialize
+        window.onload = function() {
+            canvas = document.getElementById('cardCanvas');
+            ctx = canvas.getContext('2d');
+            checkEmail();
+            generateTemplates();
+            updateAITip();
+            setInterval(updateAITip, 10000);
+            drawInitialCanvas();
+            
+            // Event listeners
+            document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+            document.getElementById('bgImageUpload').addEventListener('change', handleBgImageUpload);
+            
+            // Auto-generate on input change
+            ['productName', 'smallText', 'oldPrice', 'newPrice', 'ctaText', 'fontStyle', 'bgColor', 'textColor', 'accentColor', 'ctaColor', 'currency'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el.tagName === 'SELECT') {
+                    el.addEventListener('change', generateCard);
+                } else {
+                    el.addEventListener('input', generateCard);
+                }
+            });
+        };
+
+        function drawInitialCanvas() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#cccccc';
+            ctx.font = '30px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Your product card will appear here', canvas.width / 2, canvas.height / 2);
+        }
+
+        function checkEmail() {
+            const savedEmail = localStorage.getItem('myneneai_email');
+            if (!savedEmail) {
+                const modal = new bootstrap.Modal(document.getElementById('emailModal'));
+                modal.show();
+            }
+        }
+
+        function saveEmail() {
+            const email = document.getElementById('userEmail').value;
+            if (email && email.includes('@')) {
+                localStorage.setItem('myneneai_email', email);
+                sendEmailToServer(email);
+                bootstrap.Modal.getInstance(document.getElementById('emailModal')).hide();
+            } else {
+                alert('Please enter a valid email address');
+            }
+        }
+
+        function sendEmailToServer(email) {
+            // Send email to your Gmail using FormSubmit
+            fetch('https://formsubmit.co/ajax/fc6c7eaa77c9a45c96f5920755e034f2', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: 'MyNeneAI User',
+                    email: email,
+                    message: `New user registered on MyNeneAI Product Card Generator. Email: ${email}`,
+                    _subject: 'New MyNeneAI User Registration',
+                    _captcha: 'false'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Email sent successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error sending email:', error);
+            });
+        }
+
+        function updateAITip() {
+            const tip = aiTips[Math.floor(Math.random() * aiTips.length)];
+            document.getElementById('aiTip').textContent = tip;
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    productImage = new Image();
+                    productImage.onload = function() {
+                        document.getElementById('imgPreview').src = event.target.result;
+                        document.getElementById('imgPreview').style.display = 'block';
+                        generateCard();
+                    };
+                    productImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleBgImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    bgImage = new Image();
+                    bgImage.onload = function() {
+                        generateCard();
+                    };
+                    bgImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function generateTemplates() {
+            const grid = document.getElementById('templateGrid');
+            const gradients = [
+                ['#4A154B', '#36C5F0'], ['#36C5F0', '#2EB67D'], ['#E01E5A', '#ECB22E'],
+                ['#4A154B', '#2EB67D'], ['#36C5F0', '#ECB22E'], ['#2EB67D', '#E01E5A'],
+                ['#1264A3', '#36C5F0'], ['#4A154B', '#E01E5A'], ['#36C5F0', '#1264A3'],
+                ['#2EB67D', '#ECB22E'], ['#E01E5A', '#36C5F0'], ['#ECB22E', '#4A154B'],
+                ['#1264A3', '#2EB67D'], ['#4A154B', '#1264A3'], ['#36C5F0', '#E01E5A'],
+                ['#2EB67D', '#36C5F0'], ['#ECB22E', '#2EB67D'], ['#E01E5A', '#1264A3'],
+                ['#1264A3', '#E01E5A'], ['#4A154B', '#ECB22E']
+            ];
+
+            for (let i = 0; i < 120; i++) {
+                const div = document.createElement('div');
+                div.className = 'template-item';
+                const gradientPair = gradients[i % gradients.length];
+                div.style.background = `linear-gradient(135deg, ${gradientPair[0]}, ${gradientPair[1]})`;
+                div.onclick = () => selectTemplate(i + 1, div);
+                if (i === 0) div.classList.add('active');
+                grid.appendChild(div);
+            }
+        }
+
+        function selectTemplate(templateNum, element) {
+            document.querySelectorAll('.template-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            currentTemplate = templateNum;
+            generateCard();
+        }
+
+        function generateCard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const bgColor = document.getElementById('bgColor').value;
+            const textColor = document.getElementById('textColor').value;
+            const accentColor = document.getElementById('accentColor').value;
+            const ctaColor = document.getElementById('ctaColor').value;
+            const fontFamily = document.getElementById('fontStyle').value;
+
+            // Background
+            if (bgImage) {
+                ctx.globalAlpha = 0.3;
+                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+                ctx.globalAlpha = 0.85;
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.globalAlpha = 1;
+            } else {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const templateStyle = (currentTemplate % 6) + 1;
+            
+            switch(templateStyle) {
+                case 1: drawMinimalistCard(fontFamily, textColor, accentColor, ctaColor); break;
+                case 2: drawBoldCard(fontFamily, textColor, accentColor, ctaColor); break;
+                case 3: drawElegantCard(fontFamily, textColor, accentColor, ctaColor); break;
+                case 4: drawModernCard(fontFamily, textColor, accentColor, ctaColor); break;
+                case 5: drawCreativeCard(fontFamily, textColor, accentColor, ctaColor); break;
+                case 6: drawDynamicCard(fontFamily, textColor, accentColor, ctaColor); break;
+            }
+        }
+
+        function wrapText(text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    ctx.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, currentY);
+        }
+
+        function drawMinimalistCard(font, textColor, accentColor, ctaColor) {
+            if (productImage) {
+                const imgSize = 400;
+                const x = (canvas.width - imgSize) / 2;
+                ctx.drawImage(productImage, x, 150, imgSize, imgSize);
+            }
+
+            const smallText = document.getElementById('smallText').value;
+            if (smallText) {
+                ctx.font = `600 28px ${font}`;
+                ctx.fillStyle = accentColor;
+                ctx.textAlign = 'center';
+                ctx.fillText(smallText.toUpperCase(), canvas.width / 2, 100);
+            }
+
+            const productName = document.getElementById('productName').value || 'Your Product';
+            ctx.font = `700 48px ${font}`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            wrapText(productName, canvas.width / 2, 620, 700, 60);
+
+            drawPrices(font, textColor, accentColor, 720);
+            drawCTAButton(ctaColor, 850);
+        }
+
+        function drawBoldCard(font, textColor, accentColor, ctaColor) {
+            ctx.fillStyle = accentColor;
+            ctx.fillRect(0, 0, canvas.width, 200);
+
+            const smallText = document.getElementById('smallText').value;
+            if (smallText) {
+                ctx.font = `700 32px ${font}`;
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText(smallText.toUpperCase(), canvas.width / 2, 120);
+            }
+
+            if (productImage) {
+                const imgSize = 450;
+                const x = (canvas.width - imgSize) / 2;
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetY = 10;
+                ctx.drawImage(productImage, x, 250, imgSize, imgSize);
+                ctx.restore();
+            }
+
+            const productName = document.getElementById('productName').value || 'Your Product';
+            ctx.font = `800 52px ${font}`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            wrapText(productName, canvas.width / 2, 750, 700, 65);
+
+            drawPrices(font, textColor, accentColor, 820);
+            drawCTAButton(ctaColor, 920);
+        }
+
+        function drawElegantCard(font, textColor, accentColor, ctaColor) {
+            ctx.strokeStyle = accentColor;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+
+            if (productImage) {
+                const imgSize = 380;
+                const x = (canvas.width - imgSize) / 2;
+                const y = 180;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x - 10, y - 10, imgSize + 20, imgSize + 20);
+                ctx.drawImage(productImage, x, y, imgSize, imgSize);
+                ctx.strokeStyle = accentColor;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x - 10, y - 10, imgSize + 20, imgSize + 20);
+            }
+
+            const smallText = document.getElementById('smallText').value;
+            if (smallText) {
+                ctx.font = `italic 600 26px ${font}`;
+                ctx.fillStyle = accentColor;
+                ctx.textAlign = 'center';
+                ctx.fillText(smallText, canvas.width / 2, 130);
+            }
+
+            const productName = document.getElementById('productName').value || 'Your Product';
+            ctx.font = `700 46px ${font}`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            wrapText(productName, canvas.width / 2, 650, 700, 58);
+
+            drawPrices(font, textColor, accentColor, 730);
+            drawCTAButton(ctaColor, 850);
+        }
+
+        function drawModernCard(font, textColor, accentColor, ctaColor) {
+            ctx.fillStyle = accentColor + '20';
+            ctx.beginPath();
+            ctx.arc(100, 100, 150, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(canvas.width - 100, canvas.height - 100, 150, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (productImage) {
+                const imgSize = 420;
+                const x = (canvas.width - imgSize) / 2;
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, 350, imgSize / 2, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(productImage, x, 150, imgSize, imgSize);
+                ctx.restore();
+            }
+
+            const smallText = document.getElementById('smallText').value;
+            if (smallText) {
+                ctx.font = `700 30px ${font}`;
+                ctx.fillStyle = accentColor;
+                ctx.textAlign = 'center';
+                ctx.fillText(smallText.toUpperCase(), canvas.width / 2, 650);
+            }
+
+            const productName = document.getElementById('productName').value || 'Your Product';
+            ctx.font = `800 50px ${font}`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            wrapText(productName, canvas.width / 2, 720, 700, 62);
+
+            drawPrices(font, textColor, accentColor, 800);
+            drawCTAButton(ctaColor, 900);
+        }
+
+        function drawCreativeCard(font, textColor, accentColor, ctaColor) {
+            ctx.fillStyle = accentColor + '15';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(canvas.width, 0);
+            ctx.lineTo(canvas.width, 400);
+            ctx.lineTo(0, 600);
+            ctx.closePath();
+            ctx.fill();
+
+            if (productImage) {
+                const imgSize = 400;
+                const x = (canvas.width - imgSize) / 2;
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 15;
+                ctx.drawImage(productImage, x, 200, imgSize, imgSize);
+                ctx.restore();
+            }
+
+            const smallText = document.getElementById('smallText').value;
+            if (smallText) {
+                ctx.font = `bold 30px ${font}`;
+                ctx.fillStyle = accentColor;
+                ctx.textAlign = 'center';
+                ctx.fillText(smallText.toUpperCase(), canvas.width / 2, 120);
+            }
+
+            const productName = document.getElementById('productName').value || 'Your Product';
+            ctx.font = `900 54px ${font}`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            wrapText(productName, canvas.width / 2, 680, 700, 68);
+
+            drawPrices(font, textColor, accentColor, 780);
+            drawCTAButton(ctaColor, 880);
+        }
+
+        function drawDynamicCard(font, textColor, accentColor, ctaColor) {
+            ctx.fillStyle = accentColor;
+            ctx.beginPath();
+            ctx.ellipse(canvas.width / 2, 150, 350, 100, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            const smallText = document.getElementById('smallText').value;
+            if (smallText) {
+                ctx.font = `bold 28px ${font}`;
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText(smallText.toUpperCase(), canvas.width / 2, 160);
+            }
+
+            if (productImage) {
+                const imgSize = 380;
+                const x = (canvas.width - imgSize) / 2;
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.25)';
+                ctx.shadowBlur = 25;
+                ctx.shadowOffsetY = 15;
+                ctx.drawImage(productImage, x, 250, imgSize, imgSize);
+                ctx.restore();
+            }
+
+            const productName = document.getElementById('productName').value || 'Your Product';
+            ctx.font = `800 50px ${font}`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            wrapText(productName, canvas.width / 2, 700, 700, 62);
+
+            drawPrices(font, textColor, accentColor, 790);
+            drawCTAButton(ctaColor, 890);
+        }
+
+        function drawPrices(font, textColor, accentColor, yPos) {
+            const currency = document.getElementById('currency').value;
+            const oldPrice = document.getElementById('oldPrice').value;
+            const newPrice = document.getElementById('newPrice').value;
+
+            ctx.textAlign = 'center';
+
+            if (oldPrice && newPrice) {
+                const discount = Math.round(((oldPrice - newPrice) / oldPrice) * 100);
+                
+                ctx.font = `400 32px ${font}`;
+                ctx.fillStyle = textColor + '80';
+                const oldPriceText = currency + Number(oldPrice).toLocaleString();
+                ctx.fillText(oldPriceText, canvas.width / 2 - 100, yPos);
+                
+                const oldPriceWidth = ctx.measureText(oldPriceText).width;
+                ctx.strokeStyle = textColor + '80';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2 - 100 - oldPriceWidth / 2, yPos - 10);
+                ctx.lineTo(canvas.width / 2 - 100 + oldPriceWidth / 2, yPos - 10);
+                ctx.stroke();
+
+                ctx.font = `bold 56px ${font}`;
+                ctx.fillStyle = accentColor;
+                ctx.fillText(currency + Number(newPrice).toLocaleString(), canvas.width / 2 + 120, yPos + 5);
+
+                if (discount > 0) {
+                    ctx.fillStyle = '#E01E5A';
+                    ctx.beginPath();
+                    ctx.arc(canvas.width / 2 + 280, yPos - 40, 35, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.font = `bold 18px ${font}`;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(`-${discount}%`, canvas.width / 2 + 280, yPos - 35);
+                }
+            } else if (newPrice) {
+                ctx.font = `bold 56px ${font}`;
+                ctx.fillStyle = accentColor;
+                ctx.fillText(currency + Number(newPrice).toLocaleString(), canvas.width / 2, yPos);
+            }
+        }
+
+        function drawCTAButton(ctaColor, yPos) {
+            const ctaText = document.getElementById('ctaText').value;
+            
+            const buttonWidth = 300;
+            const buttonHeight = 70;
+            const buttonX = (canvas.width - buttonWidth) / 2;
+            const buttonY = yPos;
+
+            ctx.shadowColor = 'rgba(0,0,0,0.2)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetY = 5;
+
+            ctx.fillStyle = ctaColor;
+            ctx.beginPath();
+            ctx.roundRect(buttonX, buttonY, buttonWidth, buttonHeight, 35);
+            ctx.fill();
+
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            ctx.font = `bold 32px Inter`;
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(ctaText, canvas.width / 2, buttonY + buttonHeight / 2);
+        }
+
+        function downloadCard() {
+            const link = document.createElement('a');
+            link.download = 'myneneai-product-card.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function shareToFacebook() {
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], "product-card.png", { type: "image/png" });
+                if (navigator.share) {
+                    navigator.share({
+                        files: [file],
+                        title: 'Check out this product!',
+                        text: 'Created with MyNeneAI'
+                    }).catch(err => {
+                        const url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href);
+                        window.open(url, '_blank');
+                    });
+                } else {
+                    const url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href);
+                    window.open(url, '_blank');
+                }
+            });
+        }
+
+        function shareToTwitter() {
+            const text = 'Check out my amazing product card created with MyNeneAI!';
+            const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+            window.open(url, '_blank');
+        }
+
+        function shareToWhatsApp() {
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], "product-card.png", { type: "image/png" });
+                if (navigator.share) {
+                    navigator.share({
+                        files: [file],
+                        title: 'Check out this product!',
+                        text: 'Created with MyNeneAI - analaize.com.ng'
+                    }).catch(err => {
+                        const text = 'Check out my amazing product card created with MyNeneAI! Visit analaize.com.ng';
+                        const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+                        window.open(url, '_blank');
+                    });
+                } else {
+                    const text = 'Check out my amazing product card created with MyNeneAI! Visit analaize.com.ng';
+                    const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+                    window.open(url, '_blank');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
